@@ -1,0 +1,25 @@
+{
+  "id":3456,
+  "api":{"name":"openbeacon-tracker","ver":"0.9.1-dirty"},
+  "time":1344647727,
+  "packets":{
+    "per_key":[0,0,0,0,0,0,0,0,15536],
+    "rate":61,
+    "invalid_protocol":2,
+    "crc_ok":15538
+    },
+  "tag":[
+    {"id":598,"px":200,"py":100,"key":8,"reader":1126},
+    {"id":600,"px":200,"py":100,"key":8,"reader":1126},
+    {"id":585,"px":200,"py":100,"key":8,"reader":1126,"button":true},
+    {"id":574,"px":200,"py":100,"key":8,"reader":1126}
+    ],
+  "reader":[
+    {"id":1126,"px":200,"py":100,"room":1,"floor":1,"group":1}
+    ],
+  "edge":[
+    {"tag":[585,598],"power":5},
+    {"tag":[574,598],"power":8},
+    {"tag":[574,585],"power":6}
+    ]
+}
