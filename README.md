@@ -1,4 +1,4 @@
-Sample Ruby application to read [OpenBeacon](http://www.openbeacon.org/BruCON_2011) RFID tracking sightings into a neo4j graph.
+Sample Ruby application to read [OpenBeacon](http://www.openbeacon.org) RFID tracking sightings into a neo4j graph.
 
 ## Data Model
 
@@ -35,4 +35,6 @@ Sample Ruby application to read [OpenBeacon](http://www.openbeacon.org/BruCON_20
 * run `ruby parse.rb ../testdata/sample.json`
 * go to [local web interface](http;//localhost;7474)
 * enter `node:index:node_auto_index:tag:*` in the *data browser* searchbar and hit `ctrl-enter` and press the rightmost "visualize" button
-* enjoy and go hacking
+* enjoy and go hacking [Visualizations from OpenBeacon at BruCON 211](http://www.openbeacon.org/BruCON_2011)
+
+![sample.json graph in Neo4j Web interface](https://img.skitch.com/20120811-qqy4m5j8r8h6u3jtn64535hbaq.gif)

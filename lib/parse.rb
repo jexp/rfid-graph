@@ -13,6 +13,7 @@ def parse(args)
   puts tags.size
   rfid.add_tags(tags)
   sample["edge"].each { |e| tags=e["tag"]; rfid.connect_simple(tags[0],tags[1],time)  }
+#  sample["edge"].each { |e| tags=e["tag"]; rfid.connect_advanced(tags[0],tags[1],time)  }
 end
 
 parse(ARGV)
