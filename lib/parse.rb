@@ -12,7 +12,8 @@ def parse(args)
   tags = sample["edge"].map { |e| e["tag"] }.flatten.uniq if (!tags)
   puts tags.size
   rfid.add_tags(tags)
-  sample["edge"].each { |e| tags=e["tag"]; rfid.connect_simple(tags[0],tags[1],time)  }
+  pairs = sample["edge"].map { |e| tags=e["tag"]; [tags[0],tags[1]]  }
+  rfid.batch_connect_simple(pairs,time)
 #  sample["edge"].each { |e| tags=e["tag"]; rfid.connect_advanced(tags[0],tags[1],time)  }
 end
 

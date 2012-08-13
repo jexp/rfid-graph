@@ -1,43 +1,20 @@
 require 'rubygems'
 require 'neography'
-
+require "cypher"
 
 class Rfid 
   def initialize
-    @neo = Neography::Rest.new("http://localhost:7474")
-#    puts @neo
-#    puts query("start n=node({id}) return n", {:id => 0}).first.inspct
-#    puts @neo.get_node(0).inspect
+    @cypher = Cypher.new
   end
 
-def query(query, params={})
-  convert(@neo.execute_query(query,params))
-end
-
-def convert(res)
-  return nil if res.nil?
-  data=res["data"]
-  cols=res["columns"]
-  data.map do |row| 
-    new_row = {}
-    row.each_with_index do |cell,idx|
-       new_row[cols[idx]]=convert_cell(cell)
-    end
-    new_row 
+  def query(query, params={})
+    @cypher.query(query,params)
   end
-end
 
-def clean 
-  query("start n=node(*) match n-[r?]->m where ID(n)<>0 delete n,r")
-end
-
-def convert_cell(cell)
-  return Neography::Relationship.new(cell) if (cell["type"])
-  return Neography::Node.new(cell) if (cell["self"])
-  return cell.map{ |x| convert_cell(x) } if (cell.kind_of? Enumerable)
-  cell
-end
-
+  def clean
+    @cypher.clean
+  end
+  
 def add_tags(tags)
   puts "Adding tags #{tags.inspect}"
   query("start n=node(0) foreach (tag in {tags} : create t={ tag: tag })", {:tags => tags})
@@ -55,15 +32,25 @@ TIMEOUT=5*MINUTE
 INTERVAL=15*MINUTE
 INTERVAL_FORMAT="%D %H:%M"
 
-# tag1-[talk:TALKED {begin,end}]->tag2
+def batch_connect_simple(tags, time = Time.now.to_i)
+  prepared = tags.map { |tag| prepare_connect_simple(tag[0],tag[1],time); }
+  @cypher.batch(prepared)
+end
+
 def connect_simple(tag1,tag2,time = Time.now.to_i) 
+  prepared = prepare_connect_simple(tag1,tag2,time)
+  query(prepared[:query],prepared[:params])
+end
+
+# tag1-[talk:TALKED {begin,end}]->tag2
+def prepare_connect_simple(tag1,tag2,time = Time.now.to_i) 
   (tag1,tag2) = [tag2, tag1] if tag2.to_i < tag1.to_i
 #  puts "#{tag1}-[:TALKED {#{time}}]->#{tag2}"
-  query(
+  { :query => 
   "start tag1=node:node_auto_index(tag={tag1}), tag2=node:node_auto_index(tag={tag2})
-   relate tag1-[talk:TALKED]->tag2
+   create unique tag1-[talk:TALKED]->tag2
    set talk.begin = head(filter( time in [coalesce(talk.begin?,{now}),{now}] : {now}-#{TIMEOUT} < time )), talk.end = {now}", 
-    {:tag1 => tag1, :tag2 => tag2, :now => time})
+    :params => {:tag1 => tag1, :tag2 => tag2, :now => time}}
 =begin
 
 "start tag1=node:node_auto_index(tag={tag1}), tag2=node:node_auto_index(tag={tag2})
@@ -87,7 +74,7 @@ def connect_advanced(tag1,tag2,time = Time.now.to_i)
   puts "#{tag1}-[:TALKED {#{time}}]->#{tag2}"
   query(
   "start tag1=node:node_auto_index(tag={tag1}), tag2=node:node_auto_index(tag={tag2})
-   relate tag1-[:TALKED]->(talk {tag1 : {tag1}, tag2: {tag2}})<-[:TALKED]-tag2
+   create unique tag1-[:TALKED]->(talk {tag1 : {tag1}, tag2: {tag2}})<-[:TALKED]-tag2
    with talk, filter(t in [talk] : t.interval! <> {interval}) as old_talk
    foreach (t in old_talk : 
      create prev={ interval:t.interval, begin : t.begin, end : t.end }, talk-[:PREV]->prev
