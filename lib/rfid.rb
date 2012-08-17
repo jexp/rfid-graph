@@ -46,9 +46,10 @@ end
 def prepare_connect_simple(tag1,tag2,time = Time.now.to_i) 
   (tag1,tag2) = [tag2, tag1] if tag2.to_i < tag1.to_i
 #  puts "#{tag1}-[:TALKED {#{time}}]->#{tag2}"
+# create unique
   { :query => 
   "start tag1=node:node_auto_index(tag={tag1}), tag2=node:node_auto_index(tag={tag2})
-   create unique tag1-[talk:TALKED]->tag2
+   relate tag1-[talk:TALKED]->tag2
    set talk.begin = head(filter( time in [coalesce(talk.begin?,{now}),{now}] : {now}-#{TIMEOUT} < time )), talk.end = {now}", 
     :params => {:tag1 => tag1, :tag2 => tag2, :now => time}}
 =begin
@@ -72,9 +73,10 @@ end
 def connect_advanced(tag1,tag2,time = Time.now.to_i) 
   (tag1,tag2) = [tag2, tag1] if tag2.to_i < tag1.to_i
   puts "#{tag1}-[:TALKED {#{time}}]->#{tag2}"
+#create unique
   query(
   "start tag1=node:node_auto_index(tag={tag1}), tag2=node:node_auto_index(tag={tag2})
-   create unique tag1-[:TALKED]->(talk {tag1 : {tag1}, tag2: {tag2}})<-[:TALKED]-tag2
+   relate tag1-[:TALKED]->(talk {tag1 : {tag1}, tag2: {tag2}})<-[:TALKED]-tag2
    with talk, filter(t in [talk] : t.interval! <> {interval}) as old_talk
    foreach (t in old_talk : 
      create prev={ interval:t.interval, begin : t.begin, end : t.end }, talk-[:PREV]->prev

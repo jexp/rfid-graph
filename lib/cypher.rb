@@ -3,8 +3,8 @@ require 'neography'
 
 
 class Cypher 
-  def initialize
-    @neo = Neography::Rest.new("http://localhost:7474")
+  def initialize(neo)
+    @neo = neo || Neography::Rest.new(ENV['NEO4J_URL'] || "http://localhost:7474")
   end
 
   def query(query, params={})
@@ -34,9 +34,9 @@ class Cypher
   end
 
   def convert_cell(cell)
-    return Neography::Relationship.new(cell) if (cell["type"])
-    return Neography::Node.new(cell) if (cell["self"])
-    return cell.map{ |x| convert_cell(x) } if (cell.kind_of? Enumerable)
+    return Neography::Relationship.new(cell) if cell.kind_of?(Hash) && cell["type"]
+    return Neography::Node.new(cell) if cell.kind_of?(Hash) && cell["self"]
+    return cell.map{ |x| convert_cell(x) } if cell.kind_of?(Array)
     cell
   end
   

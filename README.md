@@ -1,4 +1,5 @@
 Sample Ruby application to read [OpenBeacon](http://www.openbeacon.org) RFID tracking sightings into a neo4j graph.
+and visualizing a RFID-Graph with Neovigator (connected donuts)
 
 ## Data Model
 
@@ -38,3 +39,9 @@ Sample Ruby application to read [OpenBeacon](http://www.openbeacon.org) RFID tra
 * enjoy and go hacking [Visualizations from OpenBeacon at BruCON 211](http://www.openbeacon.org/BruCON_2011)
 
 ![sample.json graph in Neo4j Web interface](https://img.skitch.com/20120811-qqy4m5j8r8h6u3jtn64535hbaq.gif)
+
+### Neovigator
+
+* `bundle install`
+* `rackup`
+* push it to heroku and add the neo4j add-on (`heroku addons:add neo4j --neo4j-version 1.8.M06`)

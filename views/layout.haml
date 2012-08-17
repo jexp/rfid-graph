@@ -1,0 +1,72 @@
+!!!
+%html
+  %head
+    %link(rel="stylesheet" href="/css/global.css")
+    %script{:src => "/js/jquery.min.js"}
+    / %script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"}
+    / %script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"}
+    %script{:src => "/js/ui.js"}
+    %script{:src => "/js/processing.min.js"} 
+
+    %title JRubyConf.EU Connection Neovigator
+
+  %body
+    %canvas#neoviz
+    %header
+      %section#title
+        %h1 JRubyConf.EU Connection Neovigator
+        %p RFID Tag Graph Browser
+      %section#search
+        %form{:action => "/", :method => "get"}
+          %label Username:
+          %input#neoid{:type => "text", :value => "#{@user}", :name => "user"}
+          %input#loadnode{:type => "submit", :value => "Load", :class => "button"}
+      %br{:style => "clear: both;"}
+    %section#content
+      = yield
+    %aside
+      %div#explanation
+        / Neovigator introduction
+        %h2 About
+        %p
+          This Neo4j database contains the TALK-relationships from the RFID tagging of 
+          %a{:href => "https://JRubyConf.EU", :target=>"_blank"} JRubyConf.EU
+        %p
+          Neovigator is an attempt to visually navigate through 
+          %a{:href => "http://neo4j.org"} Neo4j 
+          by using the 
+          %a{:href => "https://github.com/maxdemarzi/neography"} Neography
+          Gem.
+        %p
+          It takes advantage of the latest HTML5 features
+          by using processing.js and the canvas element for drawing.
+        %h3 Get started
+        %p
+          Start using the browser by just typing in a tag-id.
+        %h3 Quirks
+        %p
+          There may be some unexpected behavior. Performance may drop significantly as
+          the number of nodes increases.
+        %h3 Credits
+        %p
+          This project is made by  
+          %a{:href => "http://twitter.com/mesirii"} Michael Hunger
+          using: 
+          %a{:href => "http://neo4j.org", :target => "_blank"} Neo4j
+          and
+          %a{:href => "https://github.com/maxdemarzi/neography", :target => "_blank"} Neography
+          , it is based on 
+          %a{:href => "http://askken.heroku.com/", :target => "_blank"} Ask Ken
+          created by 
+          %a{:href => "http://twitter.com/_mql", :target => "_blank"} Michael Aufreiter 
+        %h3 Code          
+        %p
+          Available at
+          %a{:href => "https://github.com/jexp/rfid-graph", :target => "_blank"} Github    
+
+      <div id="browser_not_supported">
+      Your Browser is currently not supported.<br/><br/>Try one of these:<br/>
+      <a href="http://www.mozilla.com/en-US/firefox/firefox.html">Firefox 3.6</a><br/>
+      <a href="http://www.apple.com/safari/">Safari 4.0</a><br/>
+      <a href="http://www.google.com/chrome/">Chrome</a><br/>
+      </div>

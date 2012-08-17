@@ -1,6 +1,12 @@
-source :gemcutter
-gem 'sinatra', '1.1.2'
-gem 'neography', '0.0.29'
-#gem 'json'
-gem 'twitter'
-gem 'rest-client'
+source 'http://rubygems.org'
+
+gem 'sinatra'
+gem 'neography'
+gem 'haml'
+gem 'json'
+
+group :test do
+  gem 'rspec'
+  gem 'rack-test'
+  gem 'net-http-spy' 
+end
