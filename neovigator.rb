@@ -71,7 +71,8 @@ START="1099"
       match tag<-[?:HAS_TAG]-user 
       return ID(tag) as id, tag.tag as tag, 
           coalesce(user.name?,tag.tag) as name, user.twitter? as twitter, user.github? as github",{:id => n.neo_id.to_i})
-    res.first
+    return nil if res.empty?
+    res.first 
   end
 
 QUERY = "start tag=node({id}) 
@@ -109,6 +110,7 @@ NA="No Relationships"
     content_type :json
     node = node_for(params[:id])
     props = get_properties(node)
+    return nil unless props
     user = props["name"]
 
     connections = neo.traverse(node, "fullpath", neighbours)
