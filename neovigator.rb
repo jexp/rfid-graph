@@ -87,7 +87,7 @@ NA="No Relationships"
 
   def get_connections(node_id)  
     connections = cypher.query(QUERY,{:id=>node_id})
-    rels = connections.group_by { |row| [direction(id,row["r"]), row["type"]] }
+    rels = connections.group_by { |row| [direction(node_id,row["r"]), row["type"]] }
   end
   
   get '/resources/show' do
@@ -97,7 +97,7 @@ NA="No Relationships"
     user = props["name"]
     id = props["id"]
 
-    connections = get_connections(id)
+    rels = get_connections(id)
     attributes = rels.collect { |keys, values| {:id => keys.last, :name => keys.join(":"), :values => values } }
     attributes = [{:id => "N/A", :name => NA, :values => [{:id => id, :name => NA}]}] if attributes.empty?
 
