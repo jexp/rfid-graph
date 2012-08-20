@@ -71,7 +71,7 @@ START="1047"
       match tag<-[?:HAS_TAG]-user 
       return ID(tag) as id, tag.tag as tag, 
           coalesce(user.name?,tag.tag) as name, user.twitter? as twitter, user.github? as github",{:id => n.neo_id.to_i})
-    return nil if res.empty?
+    return nil if !res || res.empty?
     res.first 
   end
 
@@ -93,6 +93,7 @@ NA="No Relationships"
   
   get '/resources/show' do
     content_type :json
+    puts "Loading viz for #{params[:id]}"
     node = node_for(params[:id])
     props = get_properties(node)
     user = props["name"]
