@@ -3,7 +3,7 @@ require 'neography'
 
 
 class Cypher 
-  def initialize(neo)
+  def initialize(neo=nil)
     @neo = neo || Neography::Rest.new(ENV['NEO4J_URL'] || "http://localhost:7474")
   end
 

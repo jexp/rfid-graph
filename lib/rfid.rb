@@ -3,6 +3,7 @@ require 'neography'
 require "cypher"
 
 class Rfid 
+
   def initialize
     @cypher = Cypher.new
   end
@@ -21,7 +22,7 @@ def add_tags(tags)
 end
 
 # person-[:HAS_TAG]->tag 
-def add_person(tag, name, twitter = null, github = null)
+def add_person(tag, name, twitter = nil, github = nil)
   query("start tag=node:node_auto_index(tag={tag}) "+
     " create person={ name : {name}, twitter : {twitter}, github: {github} }, person-[:HAS_TAG]->tag", 
     {:tag => tag, :name => name, :twitter => twitter, :github => github})
