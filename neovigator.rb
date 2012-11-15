@@ -48,12 +48,41 @@ class Neovigator < Sinatra::Application
     end
   end
 
-START="1047"
+START=ENV["DEFAULT_ID"] || "1120"
+
+PERSON_QUERY="
+  start person=node:node_auto_index({query})
+  match person-[:HAS_TAG]->tag
+  return tag
+  limit 1"
+  
+TAG_QUERY="
+  start tag=node:node_auto_index(tag={tag})
+  return tag
+  limit 1"
+
+ID_QUERY="
+    start tag=node({id})
+    return tag
+    limit 1"
+  
 
   def node_for(id)
     id = START unless id
-#   return neo.get_node(id) if id =~ /\d+/
-    return (neo.get_node_auto_index("tag",id)||[]).first || neo.get_node(id)
+    res=cypher.query(PERSON_QUERY,{:query=>"twitter:#{id} OR name:*#{id}*"})
+    puts "found node-auto-index query #{res.inspect}"
+    return res.first["tag"] unless res.empty?
+    res=cypher.query(TAG_QUERY,{:tag=>id}) if id =~ /^\d+$/
+    puts "found node-auto-index query #{res.inspect}"
+    return res.first["tag"] unless res.empty?
+    res=cypher.query(ID_QUERY,{:id=>id})  if id =~ /^\d+$/
+    return res.first["tag"] unless res.empty?
+    res=cypher.query(TAG_QUERY,{:tag=>START})
+    return res.first["tag"]
+#    res=(neo.find_node_auto_index("twitter:#{id} OR name:*#{id}*")||[]).first if id =~ /^[a-zA-Z]+/
+#    return neo.get_node(id) if id =~ /\w+/
+#    return res if res
+#    return (neo.get_node_auto_index("tag",id)||[]).first || neo.get_node(id)
   end
   
   def get_info(props)
@@ -66,11 +95,11 @@ START="1047"
   end
   
   def get_properties(node)
-    n = Neography::Node.new(node)
+    node = Neography::Node.new(node) unless node.kind_of?(Neography::Node)
     res = cypher.query("start tag=node({id}) 
       match tag<-[?:HAS_TAG]-user 
       return ID(tag) as id, tag.tag as tag, 
-          coalesce(user.name?,tag.tag) as name, user.twitter? as twitter, user.github? as github",{:id => n.neo_id.to_i})
+          coalesce(user.name?,tag.tag) as name, user.twitter? as twitter, user.github? as github",{:id => node.neo_id.to_i})
     return nil if !res || res.empty?
     res.first 
   end
@@ -153,7 +182,9 @@ NA="No Relationships"
   end
 
   get '/' do
-    @user = node_for(params["user"]||START)["data"]["tag"]
+    n=node_for(params["user"]||START)
+puts n.inspect    
+    @user = n["tag"]
 puts @user
     haml :index
   end
