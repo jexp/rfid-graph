@@ -24,8 +24,9 @@ end
 # person-[:HAS_TAG]->tag 
 def add_person(tag, name, twitter = nil, github = nil)
   query("start tag=node:node_auto_index(tag={tag}) "+
-    " create person={ name : {name}, twitter : {twitter}, github: {github} }, person-[:HAS_TAG]->tag", 
-    {:tag => tag, :name => name, :twitter => twitter, :github => github})
+    " create person={person}, person-[:HAS_TAG]->tag return person", 
+    {:tag => tag, :person => { :name => name, :twitter => twitter, :github => github}.delete_if {|k,v| v==nil}})
+#    {:tag => tag, :name => name, :twitter => twitter, :github => github})
 end
 
 MINUTE=60
@@ -36,6 +37,18 @@ INTERVAL_FORMAT="%D %H:%M"
 def batch_connect_simple(tags, time = Time.now.to_i)
   prepared = tags.map { |tag| prepare_connect_simple(tag[0],tag[1],time); }
   @cypher.batch(prepared)
+end
+
+def batch_like(tags,type)
+  prepared = tags.map { |tag| prepare_like(tag[0],tag[1],type); }
+  @cypher.batch(prepared)
+end
+
+def prepare_like(tag1,tag2,type) 
+  { :query => 
+    "start tag1=node:node_auto_index(tag={tag1}), tag2=node:node_auto_index(tag={tag2})
+     match tag1-[talk:TALKED]-tag2 set talk.#{type} = true", 
+    :params => {:tag1 => tag1, :tag2 => tag2}}
 end
 
 def connect_simple(tag1,tag2,time = Time.now.to_i) 
@@ -50,7 +63,7 @@ def prepare_connect_simple(tag1,tag2,time = Time.now.to_i)
 # create unique
   { :query => 
   "start tag1=node:node_auto_index(tag={tag1}), tag2=node:node_auto_index(tag={tag2})
-   relate tag1-[talk:TALKED]->tag2
+   create unique tag1-[talk:TALKED]->tag2
    set talk.begin = head(filter( time in [coalesce(talk.begin?,{now}),{now}] : {now}-#{TIMEOUT} < time )), talk.end = {now}", 
     :params => {:tag1 => tag1, :tag2 => tag2, :now => time}}
 =begin
@@ -77,7 +90,7 @@ def connect_advanced(tag1,tag2,time = Time.now.to_i)
 #create unique
   query(
   "start tag1=node:node_auto_index(tag={tag1}), tag2=node:node_auto_index(tag={tag2})
-   relate tag1-[:TALKED]->(talk {tag1 : {tag1}, tag2: {tag2}})<-[:TALKED]-tag2
+   create unique tag1-[:TALKED]->(talk {tag1 : {tag1}, tag2: {tag2}})<-[:TALKED]-tag2
    with talk, filter(t in [talk] : t.interval! <> {interval}) as old_talk
    foreach (t in old_talk : 
      create prev={ interval:t.interval, begin : t.begin, end : t.end }, talk-[:PREV]->prev

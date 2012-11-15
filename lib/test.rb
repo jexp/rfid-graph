@@ -51,6 +51,15 @@ class TestRfid < Test::Unit::TestCase
     end
   end
 
+  def test_batch_like
+    (tag1,tag2,tag3)=["5","6","7"]
+    @rfid.add_tags([tag1,tag2,tag3]);
+    @rfid.batch_connect_simple([[tag1,tag2],[tag1,tag3]],4711)
+    @rfid.batch_like([[tag1,tag2],[tag1,tag3]])
+    res=@cypher.query("start tag=node:node_auto_index(tag={t}) match tag-[talk:TALKED]-tag2 where talk.like = true return talk",{:t=>tag1})
+    assert_equal(2,res.size)
+  end
+
 
   def test_add_connection_simple_tag_order
     (tag1,tag2)=["5","6"]
@@ -129,7 +138,7 @@ class TestRfid < Test::Unit::TestCase
   end
 
   def test_add_connection_advanced_timout
-    Neography::Config.log_enabled=true
+#    Neography::Config.log_enabled=true
     (tag1,tag2)=["15","16"]
     now=4711
     duration=Rfid::INTERVAL*2
