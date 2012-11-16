@@ -38,6 +38,13 @@ and visualizing a RFID-Graph with Neovigator (connected donuts)
     apt-get install ruby rubygems
     sudo gem install bundler
     bundle install
+
+Make a people.cvs file (name,rfid-tag-id,twitteraccount):
+
+    head people.cvs
+    >David Peart,554,
+    >Marcus Ericsson,573,mericsson
+    
     bundle exec -Ilib lib/people.rb people.csv for person import
     bundle exec -Ilib lib/parse.rb path/to/last_json # for saving of tags in neo4j
     while [ true ]; do bundle exec -Ilib lib/parse.rb path/to/last_json; sleep 20; done #contiuous parsing
