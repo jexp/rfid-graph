@@ -71,7 +71,7 @@ ID_QUERY="
 
   def node_for(id)
     id = START unless id
-    res=cypher.query(PERSON_QUERY,{:query=>"twitter:#{id} OR name:*#{id}*"})
+    res=cypher.query(PERSON_QUERY,{:query=>"twitter:#{id} OR name:*#{id}* OR name:*#{id.capitalize}*"})
     puts "found node-auto-index query #{res.inspect}"
     return res.first["tag"] unless res.empty?
     res=cypher.query(TAG_QUERY,{:tag=>id}) if id =~ /^\d+$/
@@ -195,7 +195,7 @@ NA="No Relationships"
   get '/' do
     n=node_for(params["user"]||START)
 puts n.inspect    
-    @user = n.tag
+    @user = params["user"]
 puts @user
     @vizId = n.neo_id
 
