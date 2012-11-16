@@ -45,9 +45,13 @@ Make a people.cvs file (name,rfid-tag-id,twitteraccount):
     >David Peart,554,
     >Marcus Ericsson,573,mericsson
     
-    bundle exec -Ilib lib/people.rb people.csv for person import
-    bundle exec -Ilib lib/parse.rb path/to/last_json # for saving of tags in neo4j
-    while [ true ]; do bundle exec -Ilib lib/parse.rb path/to/last_json; sleep 20; done #contiuous parsing
+Import the people
+
+    bundle exec -Ilib lib/people.rb people.csv
+
+pull in tag data from openbeacong tracker every 20s
+
+    while [ true ]; do bundle exec -Ilib lib/parse.rb path/to/last_json; sleep 20; done
 
 * enjoy and go hacking [Visualizations from OpenBeacon at BruCON 211](http://www.openbeacon.org/BruCON_2011)
 
