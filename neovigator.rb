@@ -39,6 +39,8 @@ class Neovigator < Sinatra::Application
 
   def node_id(node)
     case node
+      when Neography::Node
+        node.neo_id
       when Hash
         node["self"].split('/').last
       when String
@@ -120,20 +122,29 @@ NA="No Relationships"
     rels = connections.group_by { |row| [direction(node_id,row["r"]), row["type"]] }
   end
   
+  def get_by_id(id) 
+    res = cypher.query(ID_QUERY,{:id=>id.to_i})
+    return res.first["tag"] unless res.empty?
+    res=cypher.query(TAG_QUERY,{:tag=>START})
+    return res.first["tag"]
+  end
+  
   get '/resources/show' do
     content_type :json
     puts "Loading viz for #{params[:id]}"
-    node = node_for(params[:id])
+    node = get_by_id(params[:id])
     props = get_properties(node)
     user = props["name"]
-    id = props["id"]
-
+    
+    id = props["id"] 
     rels = get_connections(id)
-    attributes = rels.collect { |keys, values| {:id => keys.last, :name => keys.join(":"), :values => values } }
+    
+    attributes = rels.collect { |keys, values| {:id => keys.last, :name => keys.join(":"), :values => values  } }
     attributes = [{:id => "N/A", :name => NA, :values => [{:id => id, :name => NA}]}] if attributes.empty?
 
     @node = {:details_html => "<h2>User: #{user}</h2>\n<p class='summary'>\n#{get_info(props)}</p>\n",
              :data => {:attributes => attributes, :name => user, :id => id }}.to_json
+    @node
   end
 
   get '/resources/show2' do
@@ -184,8 +195,10 @@ NA="No Relationships"
   get '/' do
     n=node_for(params["user"]||START)
 puts n.inspect    
-    @user = n["tag"]
+    @user = n.tag
 puts @user
+    @vizId = n.neo_id
+
     haml :index
   end
 

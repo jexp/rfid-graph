@@ -8,11 +8,6 @@
 
   function loadvisualization() {
     var vizid = document.getElementById("vizid").value 
-    if ( vizid != "") {
-      p.resourceId = vizid; 
-    } else {
-      p.resourceId = window.location.search.substring(1).split("=")[1];
-    }
     p.resourceId = vizid;
     p.setup();
 
@@ -36,13 +31,12 @@
       var initialized = false;
         
       // init
-      var vizid =  window.location.search.substring(1).split("=")[1];
+      var vizid = $("#neoid").attr("value"); // window.location.search.substring(1).split("=")[1];
       if (vizid) {
         p.resourceId = vizid;
       } else {
-        p.resourceId = "1120";
+        p.resourceId = 1120;
       }
-
       p.init(p.ajax("/js/pjs/physics.pjs")+p.ajax("/js/pjs/donut.pjs")+p.ajax("/js/pjs/resource.pjs")+p.ajax("/js/pjs/node.pjs")+p.ajax("/js/pjs/edge.pjs")+p.ajax("/js/pjs/graph.pjs")+p.ajax("/js/pjs/network.pjs"));
       initialized = true;
       

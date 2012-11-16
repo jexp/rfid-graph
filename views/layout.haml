@@ -11,6 +11,7 @@
     %title GraphConnect Connection Neovigator
 
   %body
+    %span#neoid{ :value => "#{@vizId}", :style => "display:none" }
     %canvas#neoviz
     %header
       %section#title
@@ -19,7 +20,7 @@
       %section#search
         %form{:action => "/", :method => "get"}
           %label Username:
-          %input#neoid{:type => "text", :value => "#{@user}", :name => "user"}
+          %input{:type => "text", :value => "#{@user}", :name => "user"}
           %input#loadnode{:type => "submit", :value => "Load", :class => "button"}
       %br{:style => "clear: both;"}
     %section#content
