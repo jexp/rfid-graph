@@ -28,14 +28,20 @@ and visualizing a RFID-Graph with Neovigator (connected donuts)
 6. run ./openbeacon-tracker 2>&1 | ./filter-singularsighting logs/sightings.json
 7. those json files can then be polled and inserted into the neo4j graph
 
-### Ruby Scripts to insert into the Neo4j Graph
+### Configure and Start the Neo4j Server
 
 1. [download](http://neo4j.org/download) and unzip Neo4j server
 * add `node_auto_indexing=true` and `node_keys_indexable=tag,name,twitter,github,interval` to `/path/to/neo4j/conf/neo4j.properties`
 * start the server with `/path/to/neo4j/bin/neo4j start`
-* run `ruby parse.rb ../testdata/sample.json`
-* go to [local web interface](http;//localhost;7474)
-* enter `node:index:node_auto_index:tag:*` in the *data browser* searchbar and hit `ctrl-enter` and press the rightmost "visualize" button
+
+### Configure the data insertion
+    apt-get install ruby rubygems
+    sudo gem install bundler
+    bundle install
+    bundle exec -Ilib lib/people.rb people.csv for person import
+    bundle exec -Ilib lib/parse.rb path/to/last_json # for saving of tags in neo4j
+    while [ true ]; do bundle exec -Ilib lib/parse.rb path/to/last_json; sleep 20; done #contiuous parsing
+
 * enjoy and go hacking [Visualizations from OpenBeacon at BruCON 211](http://www.openbeacon.org/BruCON_2011)
 
 ![sample.json graph in Neo4j Web interface](https://img.skitch.com/20120811-qqy4m5j8r8h6u3jtn64535hbaq.gif)
@@ -43,5 +49,5 @@ and visualizing a RFID-Graph with Neovigator (connected donuts)
 ### Neovigator
 
 * `bundle install`
-* `rackup`
+* `bundle exec rackup # neovigator webapp`
 * push it to heroku and add the neo4j add-on (`heroku addons:add neo4j --neo4j-version 1.8.M06`)
