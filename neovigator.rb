@@ -29,14 +29,6 @@ class Neovigator < Sinatra::Application
     end
   end
 
-  def neighbours
-    {"order"         => "depth first",
-     "uniqueness"    => "none",
-     "relationships" => [{"type" => "TALKED", "direction" => "all"}],
-     "return filter" => {"language" => "builtin", "name" => "all_but_start_node"},
-     "depth"         => 1}
-  end
-
   def node_id(node)
     case node
       when Hash
@@ -105,51 +97,6 @@ NA="No Relationships"
 
     @node = {:details_html => "<h2>User: #{user}</h2>\n<p class='summary'>\n#{get_info(props)}</p>\n",
              :data => {:attributes => attributes, :name => user, :id => id }}.to_json
-  end
-
-  get '/resources/show2' do
-    content_type :json
-    node = node_for(params[:id])
-    props = get_properties(node)
-    return nil unless props
-    user = props["name"]
-
-    connections = neo.traverse(node, "fullpath", neighbours)
-    incoming = Hash.new{|h, k| h[k] = []}
-    outgoing = Hash.new{|h, k| h[k] = []}
-    nodes = Hash.new
-    attributes = Array.new
-
-    connections.each do |c|
-       c["nodes"].each do |n|
-         nodes[n["self"]] = n["data"].merge({"name" => n["data"]["tag"]})
-       end
-     end
-     
-    connections.each do |c|
-       rel = c["relationships"][0]
-       
-       if rel["end"] == node["self"]            # values has id which is usd for /resources/show?id=id and name which is displayed
-         incoming["Incoming:#{rel["type"]}"] << {:values => nodes[rel["start"]].merge({:id => node_id(rel["start"]) }) }
-       else
-         outgoing["Outgoing:#{rel["type"]}"] << {:values => nodes[rel["end"]].merge({:id => node_id(rel["end"]) }) }
-       end
-    end
-
-      incoming.merge(outgoing).each_pair do |key, value|
-        attributes << {:id => key.split(':').last, :name => key, :values => value.collect{|v| v[:values]} }
-      end
-
-   attributes = [{"name" => "No Relationships","name" => "No Relationships","values" => [{"id" => "#{user}","name" => "No Relationships "}]}] if attributes.empty?
-
-    @node = {:details_html => "<h2>User: #{user}</h2>\n<p class='summary'>\n#{get_info(props)}</p>\n",
-              :data => {:attributes => attributes, 
-                        :name => user,
-                        :id => node_id(node)}
-            }
-
-    @node.to_json
-
   end
 
   get '/' do
